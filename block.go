@@ -7,9 +7,6 @@
 package main
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"strconv"
 	"time"
 )
 
@@ -18,20 +15,26 @@ type Block struct {
 	Data 			[]byte	// valuable information
 	PrevBlockHash 	[]byte	// hash of the previous block
 	Hash 			[]byte	// hash of this block
+	Counter			int		// counter
 }
 
 
-func (b *Block) setHash() {
-	timestamp := []byte(strconv.FormatInt(b.Timestamp, 10))
-	headers := bytes.Join([][]byte{b.PrevBlockHash, b.Data, timestamp}, []byte{})
-	hash := sha256.Sum256(headers)
-
-	b.Hash = hash[:]
-}
+//func (b *Block) setHash() {
+//	timestamp := []byte(strconv.FormatInt(b.Timestamp, 10))
+//	headers := bytes.Join([][]byte{b.PrevBlockHash, b.Data, timestamp}, []byte{})
+//	hash := sha256.Sum256(headers)
+//
+//	b.Hash = hash[:]
+//}
 
 func newBlock(data string, prevBlockHash []byte) *Block {
-	block := &Block{time.Now().Unix(), []byte(data), prevBlockHash, []byte{}}
-	block.setHash()
+	block := &Block{time.Now().Unix(), []byte(data), prevBlockHash, []byte{}, 0}
+	pow := newProofOfWork(block)
+	counter, hash := pow.Run()
+
+	block.Hash = hash[:]
+	block.Counter = counter
+
 	return block
 }
 
