@@ -35,7 +35,7 @@ type Transaction struct {
 	Vout 		[]TXOutput
 }
 
-func (tx *Transaction) SetID() {
+func (tx *Transaction) setID() {
 	var encoded bytes.Buffer
 	var hash [32]byte
 
@@ -56,7 +56,7 @@ func newCoinBaseTX(to, data string) *Transaction {
 	txin := TXInput{[]byte{}, -1, data}
 	txout := TXOutput{subsity, to}
 	tx := Transaction{nil, []TXInput{txin}, []TXOutput{txout}}
-	tx.SetID()
+	tx.setID()
 
 	return &tx
 }
