@@ -50,6 +50,7 @@ func (cli *CLI) printChain() {
 		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
 		fmt.Println()
 
+		// stop when point to genesis block
 		if len(block.PrevBlockHash) == 0 {
 			break
 		}
