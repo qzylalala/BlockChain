@@ -34,6 +34,7 @@ func newBlock(transactions []*Transaction, prevBlockHash []byte) *Block {
 	return block
 }
 
+//  Let all transactions in a block to be uniquely identified by a single hash
 func (b *Block) HashTransactions() []byte {
 	var txHashes [][]byte
 	var txHash [32]byte

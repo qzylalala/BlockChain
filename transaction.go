@@ -19,12 +19,12 @@ const subsity = 10 		// the amount of reward
 
 //  an input references a previous output
 type TXInput struct {
-	Txid      []byte	// ID of such transaction
-	Vout      int		// an index of an output in the transaction
+	Txid      []byte	// ID of the transaction
+	Vout      int		// Index of an output in the transaction
 	ScriptSig string	// a script which provides data to be used in an output’s ScriptPubKey
 }
 
-//  Outputs are where “coins” are stored
+//  Outputs are where “coins” are stored (indivisible)
 type TXOutput struct {
 	Value        int	// the value of "coins"
 	ScriptPubKey string	// store an arbitrary string (user defined wallet address).
