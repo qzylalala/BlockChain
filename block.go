@@ -8,45 +8,51 @@ package main
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"encoding/gob"
 	"log"
 	"time"
 )
 
+// Block represents a block in the blockchain
 type Block struct {
-	Timestamp 		int64 	// when the block is created
-	Transactions	[]*Transaction	// transaction info
-	PrevBlockHash 	[]byte	// hash of the previous block
-	Hash 			[]byte	// hash of this block
-	Counter			int		// counter
+	Timestamp     int64
+	Transactions  []*Transaction
+	PrevBlockHash []byte
+	Hash          []byte
+	Nonce         int
+	Height        int
 }
 
-
-func newBlock(transactions []*Transaction, prevBlockHash []byte) *Block {
-	block := &Block{time.Now().Unix(), transactions, prevBlockHash, []byte{}, 0}
-	pow := newProofOfWork(block)
-	counter, hash := pow.Run()
+// NewBlock creates and returns Block
+func NewBlock(transactions []*Transaction, prevBlockHash []byte, height int) *Block {
+	block := &Block{time.Now().Unix(), transactions, prevBlockHash, []byte{}, 0, height}
+	pow := NewProofOfWork(block)
+	nonce, hash := pow.Run()
 
 	block.Hash = hash[:]
-	block.Counter = counter
+	block.Nonce = nonce
 
 	return block
 }
 
-//  Let all transactions in a block to be uniquely identified by a single hash
-func (b *Block) HashTransactions() []byte {
-	var txHashes [][]byte
-	var txHash [32]byte
-
-	for _, tx := range b.Transactions {
-		txHashes = append(txHashes, tx.ID)
-	}
-	txHash = sha256.Sum256(bytes.Join(txHashes, []byte{}))
-
-	return txHash[:]
+// NewGenesisBlock creates and returns genesis Block
+func NewGenesisBlock(coinbase *Transaction) *Block {
+	return NewBlock([]*Transaction{coinbase}, []byte{}, 0)
 }
 
+// HashTransactions returns a hash of the transactions in the block
+func (b *Block) HashTransactions() []byte {
+	var transactions [][]byte
+
+	for _, tx := range b.Transactions {
+		transactions = append(transactions, tx.Serialize())
+	}
+	mTree := NewMerkleTree(transactions)
+
+	return mTree.RootNode.Data
+}
+
+// Serialize serializes the block
 func (b *Block) Serialize() []byte {
 	var result bytes.Buffer
 	encoder := gob.NewEncoder(&result)
@@ -59,6 +65,7 @@ func (b *Block) Serialize() []byte {
 	return result.Bytes()
 }
 
+// DeserializeBlock deserializes a block
 func DeserializeBlock(d []byte) *Block {
 	var block Block
 
@@ -70,6 +77,3 @@ func DeserializeBlock(d []byte) *Block {
 
 	return &block
 }
-
-
-
